@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Box, Tabs, Tab, Typography, AppBar, IconButton } from '@mui/material';
+import { Box, Tabs, Tab, Typography, AppBar, IconButton, CircularProgress } from '@mui/material';
 import Dashboard from '../components/Dashboard';
 import ReportsPage from './ReportsPage';
 import BudgetPage from './BudgetPage';
@@ -22,19 +22,23 @@ import ThemeToggleButton from '../components/ThemeToggle';
 
 const HomePage = () => {
   const { signOut } = useContext(AuthContext);
-  const { themeMode, toggleTheme } = useTheme();
   const navigate = useNavigate(); 
   const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleTabChange = (event, newValue) => {
-    if (newValue !== 8) {
+    if (newValue !== 8 ) {
       setTabValue(newValue);
     }
   };
 
   const handleLogout = () => {
-    signOut();
-    navigate('/signin');
+    
+    setLoading(true); // Start loading
+    signOut();  // Assuming signOut returns a promise
+     // Stop loading
+    setTimeout(() => {navigate('/signin');setLoading(false);},800);
+    
   };
 
   return (
@@ -81,6 +85,28 @@ const HomePage = () => {
           {tabValue === 5 && <ProfilePage />}
           {tabValue === 6 && <About />}
         </Box>
+
+        {/* Loader for Logout Process */}
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed', // Changed to fixed to cover the entire screen
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0, 0.8)', // Optional: semi-transparent background
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <CircularProgress sx={{ color: 'purple' }}/>
+        </Box>
+      )}
+
+
       </Box>
     </Box>
   );
