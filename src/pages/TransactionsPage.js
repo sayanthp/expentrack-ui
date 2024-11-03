@@ -44,12 +44,10 @@ const TransactionsPage = () => {
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
     <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{textAlign:'center'}}>
+      <Typography variant="h4" gutterBottom sx={{textAlign:'center',paddingBottom:'20px'}}>
         Manage Transactions
       </Typography>
-      <Typography variant="body1" paragraph sx={{textAlign:'center'}}>
-        Add new transactions, view and manage your transaction history.
-      </Typography>
+     
 
       {/* Add Transaction Form */}
       <Paper sx={{ padding: 3, marginBottom: 3 }}>

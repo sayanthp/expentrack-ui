@@ -29,17 +29,17 @@ const Profile = ({ userProfile, onSaveProfile, onEditProfile }) => {
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Profile
-      </Typography>
+     
 
       {/* Profile Picture */}
       <Box sx={{ textAlign: 'center', marginBottom: 3 }}>
-        <Avatar
-          alt="Profile Picture"
-          src={profile.profilePicture}
-          sx={{ width: 150, height: 150, marginBottom: 2 }}
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+          <Avatar
+            alt="Profile Picture"
+            src={profile.profilePicture}
+            sx={{ width: 150, height: 150, marginBottom: 2 }}
+          />
+          </Box>
         {isEditing && (
           <input
             accept="image/*"

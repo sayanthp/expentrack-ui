@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, Container } from '@mui/material';
+import { Box, Paper, Container, Typography } from '@mui/material';
 import Profile from '../components/Profile';
 
 const ProfilePage = () => {
@@ -20,6 +20,11 @@ const ProfilePage = () => {
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <Box sx={{ padding: 3 }}>
+
+        <Typography variant="h4" gutterBottom sx={{textAlign:'center',paddingBottom:'20px'}}>
+        Profile
+      </Typography>
+      
       <Paper sx={{ padding: 3, marginBottom: 3 }}>
         <Profile
           userProfile={userProfile}

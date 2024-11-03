@@ -9,11 +9,7 @@ const AddTransactionForm = ({ onSubmit }) => {
         transactionType: 'expense',
         paymentMethod: '',
         merchant: '',
-        description: '',
-        tags: '',
-        city: '',
-        country: '',
-        notes: '',
+        description: ''
     });
 
     // Handle form submission
@@ -28,11 +24,7 @@ const AddTransactionForm = ({ onSubmit }) => {
             transactionType: 'expense',
             paymentMethod: '',
             merchant: '',
-            description: '',
-            tags: '',
-            city: '',
-            country: '',
-            notes: '',
+            description: ''
         });
     };
 
@@ -154,53 +146,15 @@ const AddTransactionForm = ({ onSubmit }) => {
                         />
                     </Grid>
 
-                    {/* Tags */}
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Tags (comma separated)"
-                            name="tags"
-                            value={transactionData.tags}
-                            onChange={handleChange}
-                        />
-                    </Grid>
+                    
 
 
 
-                    {/* Location - City */}
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            label="City"
-                            name="city"
-                            value={transactionData.city}
-                            onChange={handleChange}
-                        />
-                    </Grid>
+                    
 
-                    {/* Location - Country */}
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            label="Country"
-                            name="country"
-                            value={transactionData.country}
-                            onChange={handleChange}
-                        />
-                    </Grid>
+                    
 
-                    {/* Notes */}
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="Notes"
-                            name="notes"
-                            value={transactionData.notes}
-                            onChange={handleChange}
-                            multiline
-                            rows={3}
-                        />
-                    </Grid>
+                   
 
                     {/* Submit Button */}
                     <Grid item xs={12}>

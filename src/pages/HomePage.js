@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
-import { Box, Tabs, Tab, Typography, AppBar } from '@mui/material';
-import Dashboard from '../components/Dashboard'; // Assuming Dashboard component is defined in components
+import React, { useState, useContext } from 'react';
+import { Box, Tabs, Tab, Typography, AppBar, IconButton } from '@mui/material';
+import Dashboard from '../components/Dashboard';
 import ReportsPage from './ReportsPage';
 import BudgetPage from './BudgetPage';
 import TransactionsPage from './TransactionsPage';
 import ProfilePage from './ProfilePage';
 import NotificationPage from './NotificationPage';
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Dashboard icon
-import ReceiptIcon from '@mui/icons-material/Receipt'; // Transactions icon
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'; // Budget icon
-import BarChartIcon from '@mui/icons-material/BarChart'; // Reports icon
-import NotificationsIcon from '@mui/icons-material/Notifications'; // Notifications icon
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // Profile icon
-import InfoIcon from '@mui/icons-material/Info'; // About icon
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Logout icon
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import InfoIcon from '@mui/icons-material/Info';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import About from '../components/About';
 import { useNavigate } from 'react-router-dom'; 
-import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import ThemeToggleButton from '../components/ThemeToggle';
 
 const HomePage = () => {
-
   const { signOut } = useContext(AuthContext);
-
+  const { themeMode, toggleTheme } = useTheme();
   const navigate = useNavigate(); 
-  const [tabValue, setTabValue] = useState(0); // State to manage which tab is selected
+  const [tabValue, setTabValue] = useState(0);
 
   const handleTabChange = (event, newValue) => {
-    setTabValue(newValue); // Set the active tab when a tab is clicked
+    if (newValue !== 8) {
+      setTabValue(newValue);
+    }
   };
 
   const handleLogout = () => {
@@ -37,25 +39,16 @@ const HomePage = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           padding: '24px',
           minHeight: '100vh',
-          overflow: 'hidden', // Prevent scrolling of the main container itself
+          overflow: 'hidden',
         }}
       >
-        {/* AppBar - Tabs Section */}
-        <AppBar
-          position="sticky"
-          sx={{
-            zIndex: 1, // Ensure it appears above the content
-            backgroundColor: 'transparent',
-            boxShadow: 'none',
-          }}
-        >
+        <AppBar position="sticky" sx={{ zIndex: 1, backgroundColor: 'transparent', boxShadow: 'none' }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -70,65 +63,23 @@ const HomePage = () => {
             <Tab icon={<BarChartIcon />} aria-label="Reports" />
             <Tab icon={<NotificationsIcon />} aria-label="Notifications" />
             <Tab icon={<AccountCircleIcon />} aria-label="Profile" />
-            <Tab icon={<InfoIcon />} aria-label="About" /> {/* About Tab */}
-            <Tab
-              icon={<ExitToAppIcon />}
-              aria-label="Logout"
-              onClick={handleLogout} // Handle logout click
-            /> {/* Logout Tab */}
+            <Tab icon={<InfoIcon />} aria-label="About" />
+            <Tab icon={<ExitToAppIcon />} aria-label="Logout" onClick={handleLogout} />
+            <Tab icon={<ThemeToggleButton />} />
           </Tabs>
+
+          
+
         </AppBar>
 
-        {/* Content Section - Scrollable Below Tabs */}
-        <Box
-          sx={{
-            flexGrow: 1, // Take up remaining space below the sticky AppBar
-            overflowY: 'auto', // Enable scrolling for content when it overflows
-            paddingTop: '20px', // Space between the tabs and content
-          }}
-        >
-          {/* Render content based on selected tab */}
-          {tabValue === 0 && (
-            <Typography variant="h5" gutterBottom>
-              <Dashboard handleTabChange={handleTabChange} />
-            </Typography>
-          )}
-
-          {tabValue === 1 && (
-            <Typography variant="h5" gutterBottom>
-              <TransactionsPage />
-            </Typography>
-          )}
-
-          {tabValue === 2 && (
-            <Typography variant="h5" gutterBottom>
-              <BudgetPage />
-            </Typography>
-          )}
-
-          {tabValue === 3 && (
-            <Typography variant="h5" gutterBottom>
-              <ReportsPage />
-            </Typography>
-          )}
-
-          {tabValue === 4 && (
-            <Typography variant="h5" gutterBottom>
-              <NotificationPage />
-            </Typography>
-          )}
-
-          {tabValue === 5 && (
-            <Typography variant="h5" gutterBottom>
-              <ProfilePage />
-            </Typography>
-          )}
-
-          {tabValue === 6 && (
-            <Typography variant="h5" gutterBottom>
-              <About />
-            </Typography>
-          )}
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', paddingTop: '20px' }}>
+          {tabValue === 0 && <Dashboard handleTabChange={handleTabChange} />}
+          {tabValue === 1 && <TransactionsPage />}
+          {tabValue === 2 && <BudgetPage />}
+          {tabValue === 3 && <ReportsPage />}
+          {tabValue === 4 && <NotificationPage />}
+          {tabValue === 5 && <ProfilePage />}
+          {tabValue === 6 && <About />}
         </Box>
       </Box>
     </Box>
