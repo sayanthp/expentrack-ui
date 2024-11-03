@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Container, Grid, Paper, Typography, Box } from '@mui/material';
 import ExpenseLinearChart from './ExpenseLinearChart';
 import TransactionsTable from './TransactionsTable';

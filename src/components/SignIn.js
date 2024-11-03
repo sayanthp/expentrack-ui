@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,16 +12,71 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Copyright from './Copyright';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { signInUser } from '../service/UserService';
+import ToastSnackbar from './ToastSnackbar';
+import { validateEmail } from '../utils/AppUtility';
 
 
 const SignIn = () => {
 
-    const navigate = useNavigate(); 
+    const { signIn } = useContext(AuthContext);
 
-    const handleSignIn = () => {
-        navigate('/');
-        alert("Logged In!");
+    const navigate = useNavigate();
+
+    const [userData, setUserData] = useState({
+        email: '',
+        password: ''
+    });
+
+    const [errors, setErrors] = useState({});
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUserData({ ...userData, [name]: value });
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: value ? '' : `${name} is required.`,
+        }));
+    };
+
+
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
+
+    const handleToastClose = () => {
+        setToastOpen(false);
+    };
+
+    const handleSignIn = async (e) => {
+
+        e.preventDefault();
+        const validateResult = validateEmail(userData.email);
+
+        if (!validateResult.success) {
+            setToastMessage(validateResult.message);
+            setToastType('error');
+            setToastOpen(true);
+            return;
+        }
+
+
+        const response = await signInUser(userData);
+        if (response.success) {
+            signIn(response.body);
+            setToastMessage(response.message);
+            setToastType('success');
+            setToastOpen(true);
+            setTimeout(() => {navigate('/dashboard');},3000);
+        } else {
+            setToastMessage(response.message);
+            setToastType('error');
+            setToastOpen(true);
+        }
+
     };
 
 
@@ -57,6 +112,10 @@ const SignIn = () => {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        onChange={handleChange}
+                        error={!!errors.email}
+                        helperText={errors.email}
+                        value={userData.email}
                     />
 
                     {/* Password Input */}
@@ -71,6 +130,8 @@ const SignIn = () => {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        onChange={handleChange}
+                        value={userData.password}
                     />
 
                     {/* Remember Me Checkbox */}
@@ -111,6 +172,12 @@ const SignIn = () => {
                         </Grid>
                     </Grid>
 
+                    <ToastSnackbar
+                        toastOpen={toastOpen}
+                        toastMessage={toastMessage}
+                        toastType={toastType}
+                        handleToastClose={handleToastClose}
+                    />
 
                 </Box>
             </Box>
@@ -119,7 +186,7 @@ const SignIn = () => {
             <Box mt={8}>
                 <Copyright />
             </Box>
-            
+
         </Container>
     );
 }

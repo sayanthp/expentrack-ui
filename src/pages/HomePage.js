@@ -16,8 +16,13 @@ import InfoIcon from '@mui/icons-material/Info'; // About icon
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Logout icon
 import About from '../components/About';
 import { useNavigate } from 'react-router-dom'; 
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const HomePage = () => {
+
+  const { signOut } = useContext(AuthContext);
+
   const navigate = useNavigate(); 
   const [tabValue, setTabValue] = useState(0); // State to manage which tab is selected
 
@@ -26,9 +31,8 @@ const HomePage = () => {
   };
 
   const handleLogout = () => {
-    // Add your logout logic here, like redirecting to the sign-out page
+    signOut();
     navigate('/signin');
-    alert("Logged out!");
   };
 
   return (

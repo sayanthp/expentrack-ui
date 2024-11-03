@@ -12,6 +12,9 @@ import { validateSignUp } from '../utils/AppUtility';
 import { signUpUser } from '../service/UserService';
 import { useNavigate } from 'react-router-dom';
 import ToastSnackbar from './ToastSnackbar';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 // Styled components
 const Paper = styled('div')(({ theme }) => ({
@@ -121,6 +124,12 @@ export default function SignUp() {
     setToastOpen(false);
   };
 
+  const { user, signIn } = useContext(AuthContext); // Get user state from AuthContext
+
+
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
     <Container component="main" maxWidth="xs">
