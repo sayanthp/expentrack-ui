@@ -62,15 +62,16 @@ const SignIn = () => {
             setToastOpen(true);
             return;
         }
-
-
         const response = await signInUser(userData);
         if (response.success) {
-            signIn(response.body);
             setToastMessage(response.message);
             setToastType('success');
             setToastOpen(true);
-            setTimeout(() => {navigate('/dashboard');},3000);
+            
+            setTimeout(() => {
+                signIn(response.body);
+                navigate('/dashboard');
+            },1000);
         } else {
             setToastMessage(response.message);
             setToastType('error');

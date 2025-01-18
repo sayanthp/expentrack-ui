@@ -1,39 +1,131 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
+import ToastSnackbar from './ToastSnackbar';
+import { createBudget, getBudget } from '../service/BudgetService';
+import { AuthContext } from '../context/AuthContext';
 
-const Budget = ({ onSetBudget }) => {
+const Budget = ({onSetBudget}) => {
+
+  const categories = ['FOOD', 'RENT', 'ENTERTAINMENT', 'HEALTH', 'UTILITIES'];
+
+  const { user } = useContext(AuthContext);
+
   const [budget, setBudget] = useState({
-    food: '',
-    rent: '',
-    entertainment: '',
-    groceries: '',
-    utilities: '', // Changed 'transport' to 'utilities'
+    FOOD: '',
+    RENT: '',
+    ENTERTAINMENT: '',
+    HEALTH: '',
+    UTILITIES: '',
   });
 
-  // Handle changes in the text fields
+  const [errors, setErrors] = useState({});
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+
+  useEffect(() => {
+    const fetchBudget = async () => {
+      try {
+        const response = await getBudget({user:user});
+        if (response.success) {
+          onSetBudget([]);
+          setToastMessage(response.message);
+          setToastType('success');
+          onSetBudget(response.body);
+          const budget = formatBudget(response.body);
+          setBudget(budget);  // Assuming response.body contains budget data
+        } else {
+          setToastMessage(response.message);
+          setToastType('error');
+        }
+      } catch (error) {
+        setToastMessage(error.message);
+        setToastType('error');
+      } finally {
+        setToastOpen(true);
+      }
+    };
+    fetchBudget();
+  }, [user]);  // Make sure to fetch data when `user` changes
+
+  const formatBudget = (response) => {
+      const budget = {};
+      response.forEach(element => {
+        if (element.category && typeof element.amount === 'number') {
+          budget[element.category] = element.amount;
+        }
+      });
+      return budget;
+  }
+
+  // Handle change for form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate negative value
+    if (parseFloat(value) < 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: 'Value cannot be negative',
+      }));
+    } else {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: '', // Clear error when value is valid
+      }));
+    }
+
+    // Update the budget state
     setBudget((prevBudget) => ({
       ...prevBudget,
       [name]: value,
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent the default form submission
+  // Close toast
+  const handleToastClose = () => {
+    setToastOpen(false);
+  };
 
-    // Check if all fields are filled in
-    if (Object.values(budget).every((amount) => amount !== '')) {
-      // Convert the budget data to an array of objects with 'category' and 'amount'
-      const formattedBudget = Object.keys(budget).map((key) => ({
-        category: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize the category name
-        amount: parseFloat(budget[key]),
-      }));
-      onSetBudget(formattedBudget); // Pass budget to the parent component
-      alert('Budget set successfully!');
-    } else {
-      alert('Please fill in all fields.');
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check if all fields are valid
+    const isValid = Object.values(budget).every((amount) => amount !== '') &&
+                    Object.values(errors).every((error) => error === '');
+
+    if (!isValid) {
+      setToastMessage('Please fill in all fields with valid values.');
+      setToastType('error');
+      setToastOpen(true);
+      return;
+    }
+
+    // Format the budget for submission
+    const formattedBudget = Object.keys(budget).map((key) => ({
+      category: key.toUpperCase(),
+      amount: parseFloat(budget[key]),
+      userId: user.userId,
+    }));
+
+    // Call createBudget API
+    try {
+      const response = await createBudget({ user, budget: formattedBudget });
+
+      if (response.success) {
+        setToastMessage('Budget successfully set!');
+        setToastType('success');
+        onSetBudget(response.body);
+      } else {
+        setToastMessage('Error setting budget. Please try again.');
+        setToastType('error');
+      }
+    } catch (error) {
+      setToastMessage('An error occurred. Please try again.');
+      setToastType('error');
+    } finally {
+      setToastOpen(true);
     }
   };
 
@@ -43,94 +135,44 @@ const Budget = ({ onSetBudget }) => {
         Monthly Budget
       </Typography>
       <Paper sx={{ padding: 3 }}>
-        {/* Form wrapper around the entire budget input area */}
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                label="Food"
-                variant="outlined"
-                margin="normal"
-                name="food"
-                value={budget.food}
-                onChange={handleChange}
-                type="number"
-                placeholder="Enter food budget"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                label="Rent"
-                variant="outlined"
-                margin="normal"
-                name="rent"
-                value={budget.rent}
-                onChange={handleChange}
-                type="number"
-                placeholder="Enter rent budget"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                label="Entertainment"
-                variant="outlined"
-                margin="normal"
-                name="entertainment"
-                value={budget.entertainment}
-                onChange={handleChange}
-                type="number"
-                placeholder="Enter entertainment budget"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                label="Groceries"
-                variant="outlined"
-                margin="normal"
-                name="groceries"
-                value={budget.groceries}
-                onChange={handleChange}
-                type="number"
-                placeholder="Enter groceries budget"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={6}>
-              <TextField
-                fullWidth
-                label="Utilities"
-                variant="outlined"
-                margin="normal"
-                name="utilities" // Changed name to 'utilities'
-                value={budget.utilities} // Updated to reflect new field
-                onChange={handleChange}
-                type="number"
-                placeholder="Enter utilities budget" // Updated placeholder
-              />
-            </Grid>
+            {categories.map((field) => (
+              <Grid item xs={12} sm={6} md={6} key={field}>
+                <TextField
+                  fullWidth
+                  label={field.charAt(0).toUpperCase() + field.slice(1)} // Capitalize first letter
+                  variant="outlined"
+                  margin="normal"
+                  name={field}
+                  value={budget[field]}
+                  onChange={handleChange}
+                  type="number"
+                  error={!!errors[field]} // Show error if there is any for this field
+                  helperText={errors[field]} // Display error message
+                  InputLabelProps={{
+                    shrink: budget[field] !== '', // Ensure the label is only shown when value is empty
+                  }}
+                />
+              </Grid>
+            ))}
 
             <Grid item xs={12} sx={{ textAlign: 'right', marginTop: 2 }}>
-              <Button
-                variant="contained"
-                type="submit" // This triggers form submission
-                sx={{ padding: '10px 20px' }}
-              >
+              <Button variant="contained" type="submit" sx={{ padding: '10px 20px' }}>
                 Set Budget
               </Button>
             </Grid>
           </Grid>
         </form>
       </Paper>
+      <ToastSnackbar
+        toastOpen={toastOpen}
+        toastMessage={toastMessage}
+        toastType={toastType}
+        handleToastClose={handleToastClose}
+      />
     </Box>
   );
 };
 
 export default Budget;
-

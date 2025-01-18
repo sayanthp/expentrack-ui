@@ -1,28 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
 
-// Register the necessary chart components
+// Register necessary chart components
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
-// Example expense data
-const expenseData = {
-  labels: ['Food', 'Rent', 'Utilities', 'Transportation', 'Entertainment'],
-  datasets: [
-    {
-      label: 'Expenses',
-      data: [300, 800, 150, 100, 200], // Replace with actual data
-      backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
-      borderColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
-      borderWidth: 1,
-    },
-  ],
-};
+const ExpensePieChart = ({ data }) => {
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Expenses',
+        data: [], // Default empty data
+        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
+        borderColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
+        borderWidth: 1,
+      },
+    ],
+  });
 
-const ExpensePieChart = () => {
+  // Effect to update chart data whenever budget data changes
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const labels = data.map(item => item.category);
+      const datasetData = data.map(item => item.amount);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: 'Expenses',
+            data: datasetData,
+            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
+            borderColor: ['#ff6384', '#36a2eb', '#ffce56', '#4caf50', '#f44336'],
+            borderWidth: 1,
+          },
+        ],
+      });
+    }
+  }, [data]); // Re-run this effect when 'data' prop changes
+
   return (
     <div>
-      <Pie data={expenseData} />
+      <Pie data={chartData} />
     </div>
   );
 };

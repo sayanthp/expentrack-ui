@@ -1,40 +1,74 @@
 import React, { useState } from 'react';
 import { TextField, MenuItem, Button, Grid, Box, Typography, InputAdornment, Select, FormControl, InputLabel } from '@mui/material';
+import { createTransaction } from '../service/TransactionService';
+import { categoriesList } from '../constants/Categories';
+import ToastSnackbar from './ToastSnackbar';
+import { paymentModeList } from '../constants/PaymentModes';
+import { validateTransactionData } from '../utils/AppUtility';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
-const AddTransactionForm = ({ onSubmit }) => {
+const AddTransactionForm = () => {
+
+    const { user } = useContext(AuthContext);
+
+    const [toastOpen, setToastOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
+
+    const handleToastClose = () => {
+        setToastOpen(false);
+    };
+
     const [transactionData, setTransactionData] = useState({
         amount: '',
         date: '',
         category: '',
-        transactionType: 'expense',
-        paymentMethod: '',
+        type: 'debit',
+        paymentMode: '',
         merchant: '',
         description: ''
     });
 
-    // Handle form submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // You can validate the form or add other checks here before submitting
-        onSubmit(transactionData);
-        setTransactionData({
-            amount: '',
-            date: '',
-            category: '',
-            transactionType: 'expense',
-            paymentMethod: '',
-            merchant: '',
-            description: ''
-        });
-    };
+    const [errors, setErrors] = useState({});
 
-    // Handle input change
     const handleChange = (e) => {
         const { name, value } = e.target;
         setTransactionData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
+
+        // Clear error for this field
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: '',
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Validate all fields
+        const validationErrors = validateTransactionData(transactionData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            setToastMessage('Please fix the errors before submitting.');
+            setToastType('error');
+            setToastOpen(true);
+            return;
+        }
+        
+        const response = await createTransaction({user:user,transactionData:transactionData});
+        
+        if (response.success) {
+            setToastMessage(response.message);
+            setToastType('success');
+        } else {
+            setToastMessage(response.message);
+            setToastType('error');
+        }
+        setToastOpen(true);
     };
 
     return (
@@ -56,7 +90,9 @@ const AddTransactionForm = ({ onSubmit }) => {
                             InputProps={{
                                 startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                             }}
-                            required
+                            error={!!errors.amount}
+                            helperText={errors.amount}
+                            
                         />
                     </Grid>
 
@@ -69,28 +105,30 @@ const AddTransactionForm = ({ onSubmit }) => {
                             type="date"
                             value={transactionData.date}
                             onChange={handleChange}
-                            required
+                            error={!!errors.date}
+                            helperText={errors.date}
+                            
                             InputLabelProps={{ shrink: true }}
                         />
                     </Grid>
 
                     {/* Category */}
                     <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth>
+                        <FormControl fullWidth error={!!errors.category}>
                             <InputLabel>Category</InputLabel>
                             <Select
                                 value={transactionData.category}
                                 onChange={handleChange}
                                 name="category"
-                                required
+                                
                             >
-                                <MenuItem value="Food">Food</MenuItem>
-                                <MenuItem value="Entertainment">Entertainment</MenuItem>
-                                <MenuItem value="Transport">Transport</MenuItem>
-                                <MenuItem value="Utilities">Utilities</MenuItem>
-                                <MenuItem value="Shopping">Shopping</MenuItem>
-                                <MenuItem value="Rent">Rent</MenuItem>
+                                {categoriesList.map((category) => (
+                                    <MenuItem key={category} value={category}>
+                                        {category}
+                                    </MenuItem>
+                                ))}
                             </Select>
+                            {errors.category && <Typography color="error">{errors.category}</Typography>}
                         </FormControl>
                     </Grid>
 
@@ -99,27 +137,35 @@ const AddTransactionForm = ({ onSubmit }) => {
                         <FormControl fullWidth>
                             <InputLabel>Transaction Type</InputLabel>
                             <Select
-                                value={transactionData.transactionType}
+                                value={transactionData.type}
                                 onChange={handleChange}
-                                name="transactionType"
-                                required
+                                name="type"
+                                
                             >
-                                <MenuItem value="expense">Expense</MenuItem>
-                                <MenuItem value="income">Income</MenuItem>
+                                <MenuItem value="DEBIT">Debit</MenuItem>
+                                <MenuItem value="CREDIT">Credit</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
 
                     {/* Payment Method */}
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            label="Payment Method"
-                            name="paymentMethod"
-                            value={transactionData.paymentMethod}
-                            onChange={handleChange}
-                            required
-                        />
+                        <FormControl fullWidth error={!!errors.paymentMode}>
+                            <InputLabel>Payment Method</InputLabel>
+                            <Select
+                                value={transactionData.paymentMode}
+                                onChange={handleChange}
+                                name="paymentMode"
+                                
+                            >
+                                {paymentModeList.map((mode) => (
+                                    <MenuItem key={mode} value={mode}>
+                                        {mode}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {errors.paymentMode && <Typography color="error">{errors.paymentMode}</Typography>}
+                        </FormControl>
                     </Grid>
 
                     {/* Merchant */}
@@ -130,7 +176,9 @@ const AddTransactionForm = ({ onSubmit }) => {
                             name="merchant"
                             value={transactionData.merchant}
                             onChange={handleChange}
-                            required
+                            error={!!errors.merchant}
+                            helperText={errors.merchant}
+                            
                         />
                     </Grid>
 
@@ -142,23 +190,14 @@ const AddTransactionForm = ({ onSubmit }) => {
                             name="description"
                             value={transactionData.description}
                             onChange={handleChange}
-                            required
+                            error={!!errors.description}
+                            helperText={errors.description}
+                            
                         />
                     </Grid>
 
-                    
-
-
-
-                    
-
-                    
-
-                   
-
                     {/* Submit Button */}
                     <Grid item xs={12}>
-
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
                             <Button
                                 type="submit"
@@ -170,6 +209,12 @@ const AddTransactionForm = ({ onSubmit }) => {
                         </Box>
                     </Grid>
 
+                    <ToastSnackbar
+                        toastOpen={toastOpen}
+                        toastMessage={toastMessage}
+                        toastType={toastType}
+                        handleToastClose={handleToastClose}
+                    />
                 </Grid>
             </form>
         </Box>

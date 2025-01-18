@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Container, Grid } from '@mui/material';
+import { Box, Paper, Typography, Container, Grid, Card, CardContent } from '@mui/material';
 import Budget from '../components/Budget';
 import ExpensePieChart from '../components/ExpensePieChart';
 
 const BudgetPage = () => {
-  // Updated to include all expected categories: Food, Rent, Entertainment, Groceries, and Utilities
-  const [budgetData, setBudgetData] = useState([
-    { category: 'Food', amount: 150 },
-    { category: 'Rent', amount: 800 },
-    { category: 'Entertainment', amount: 120 },
-    { category: 'Groceries', amount: 100 },  // Added "Groceries"
-    { category: 'Utilities', amount: 60 },    // Changed from 'Transportation' to 'Utilities'
-  ]);
 
-  // Function to handle setting the budget
-  const handleSetBudget = (newBudget) => {
-    setBudgetData(newBudget);  // Make sure the newBudget structure is correct
+  const [budgetData, setBudgetData] = useState([]);
+
+  const handleBudgetUpdate = (newBudgetData) => {
+    setBudgetData(newBudgetData);
   };
+
+  // Calculate total budget
+  const totalBudget = budgetData.reduce((total, item) => total + item.amount, 0);
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
       <Box sx={{ padding: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{textAlign:'center',paddingBottom:'20px'}}>
+        <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', paddingBottom: '20px' }}>
           Manage Your Budget
         </Typography>
 
@@ -30,7 +26,7 @@ const BudgetPage = () => {
           {/* Pie chart above the form */}
           <Grid item xs={12} sm={6}>
             <Paper sx={{ padding: 3, height: '100%' }}>
-              {/* Provide static data or dynamic budgetData as props */}
+              {/* Provide dynamic budgetData as props */}
               <ExpensePieChart data={budgetData} />
             </Paper>
           </Grid>
@@ -38,32 +34,46 @@ const BudgetPage = () => {
           {/* Budget form below the chart */}
           <Grid item xs={12} sm={6}>
             <Paper sx={{ padding: 3, height: '100%' }}>
-              <Budget onSetBudget={handleSetBudget} />
+              {/* Handle budget data from form */}
+              <Budget onSetBudget={handleBudgetUpdate} />
             </Paper>
           </Grid>
-
-          
         </Grid>
 
         {/* Budget Summary */}
         {budgetData.length > 0 ? (
-          <Paper sx={{ padding: 3, marginTop: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper sx={{ padding: 3, marginTop: 3, borderRadius: 2, boxShadow: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Budget Summary
             </Typography>
+
+            {/* Display total budget in INR */}
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'green' }}>
+              Total Budget: ₹{totalBudget.toFixed(2)}
+            </Typography>
+
             <Grid container spacing={2}>
               {budgetData.map((item, index) => (
                 <Grid key={index} item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    {item.category}: ${item.amount}
-                  </Typography>
+                  <Card sx={{ padding: 2, backgroundColor: '#000000', boxShadow: 1, borderRadius: 2 }}>
+                    <CardContent>
+                      <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                        {item.category}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        ₹{item.amount.toFixed(2)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 </Grid>
               ))}
             </Grid>
           </Paper>
         ) : (
-          <Paper sx={{ padding: 3, marginTop: 3 }}>
-            <Typography variant="body1">Please set your budget to view the summary.</Typography>
+          <Paper sx={{ padding: 3, marginTop: 3, boxShadow: 1 }}>
+            <Typography variant="body1" sx={{ color: 'gray' }}>
+              Please set your budget to view the summary.
+            </Typography>
           </Paper>
         )}
       </Box>
@@ -72,4 +82,3 @@ const BudgetPage = () => {
 };
 
 export default BudgetPage;
-

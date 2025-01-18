@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Box, Tabs, Tab, Typography, AppBar, IconButton, CircularProgress } from '@mui/material';
+import { Box, Tabs, Tab, AppBar, CircularProgress } from '@mui/material';
 import Dashboard from '../components/Dashboard';
 import ReportsPage from './ReportsPage';
 import BudgetPage from './BudgetPage';
@@ -17,7 +17,6 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import About from '../components/About';
 import { useNavigate } from 'react-router-dom'; 
 import { AuthContext } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import ThemeToggleButton from '../components/ThemeToggle';
 
 const HomePage = () => {
@@ -33,12 +32,12 @@ const HomePage = () => {
   };
 
   const handleLogout = () => {
-    
-    setLoading(true); // Start loading
-    signOut();  // Assuming signOut returns a promise
-     // Stop loading
-    setTimeout(() => {navigate('/signin');setLoading(false);},800);
-    
+    setLoading(true);
+    signOut();
+    setTimeout(() => {
+      navigate('/signin');
+      setLoading(false);
+    },800);
   };
 
   return (

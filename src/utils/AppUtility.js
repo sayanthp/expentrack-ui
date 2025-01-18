@@ -96,3 +96,35 @@ export const validatePassword = (password) => {
         message: message,
     };
 };
+
+
+export const validateTransactionData = (data) => {
+    const newErrors = {};
+    const { amount, date, category, paymentMode, merchant, description } = data;
+
+    if (!amount || isNaN(amount) || amount <= 0) {
+        newErrors.amount = 'Amount is required and must be a positive number.';
+    }
+
+    if (!date) {
+        newErrors.date = 'Date is required.';
+    }
+
+    if (!category) {
+        newErrors.category = 'Category is required.';
+    }
+
+    if (!paymentMode) {
+        newErrors.paymentMode = 'Payment mode is required.';
+    }
+
+    if (!merchant) {
+        newErrors.merchant = 'Merchant is required.';
+    }
+
+    if (!description) {
+        newErrors.description = 'Description is required.';
+    }
+
+    return newErrors;
+};
