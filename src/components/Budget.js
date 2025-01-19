@@ -33,7 +33,7 @@ const Budget = ({onSetBudget}) => {
           setToastType('success');
           onSetBudget(response.body);
           const budget = formatBudget(response.body);
-          setBudget(budget);  // Assuming response.body contains budget data
+          setBudget(budget);
         } else {
           setToastMessage(response.message);
           setToastType('error');
@@ -46,7 +46,7 @@ const Budget = ({onSetBudget}) => {
       }
     };
     fetchBudget();
-  }, [user]);  // Make sure to fetch data when `user` changes
+  }, [user]);
 
   const formatBudget = (response) => {
       const budget = {};
@@ -58,11 +58,9 @@ const Budget = ({onSetBudget}) => {
       return budget;
   }
 
-  // Handle change for form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Validate negative value
     if (parseFloat(value) < 0) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -71,27 +69,23 @@ const Budget = ({onSetBudget}) => {
     } else {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        [name]: '', // Clear error when value is valid
+        [name]: '',
       }));
     }
 
-    // Update the budget state
     setBudget((prevBudget) => ({
       ...prevBudget,
       [name]: value,
     }));
   };
 
-  // Close toast
   const handleToastClose = () => {
     setToastOpen(false);
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if all fields are valid
     const isValid = Object.values(budget).every((amount) => amount !== '') &&
                     Object.values(errors).every((error) => error === '');
 
@@ -102,14 +96,12 @@ const Budget = ({onSetBudget}) => {
       return;
     }
 
-    // Format the budget for submission
     const formattedBudget = Object.keys(budget).map((key) => ({
       category: key.toUpperCase(),
       amount: parseFloat(budget[key]),
       userId: user.userId,
     }));
 
-    // Call createBudget API
     try {
       const response = await createBudget({ user, budget: formattedBudget });
 
